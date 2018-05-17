@@ -3,7 +3,7 @@ const test = new D.Client();
 
 test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
 
-var command = ".";
+var command = "!";
 var targetList;
 
 init();
