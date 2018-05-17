@@ -16,7 +16,7 @@ test.on("message", (message) => {
     }
     if (message.content.indexOf("컷") != -1) {
         if (doCut(message.content) == true) {
-            message.reply(message.comtent + " 확인");
+            message.reply(message.content + " 확인");
         }
     } else if (message.content.indexOf("점검") != -1) {
         doReset(message.content);
@@ -24,7 +24,9 @@ test.on("message", (message) => {
     } else if (message.content.indexOf("보스") != -1) {
         message.reply(getTargets());
     } else {
-        doCut(message.content);
+        if (doCut(message.content) == true) {
+            message.reply(message.content + " 확인");
+        }
     } 
 });
 
