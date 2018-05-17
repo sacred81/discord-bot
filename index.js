@@ -3,7 +3,7 @@ const test = new D.Client();
 
 test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
 
-var command = "!";
+var command = ".";
 var targetList;
 
 init();
@@ -15,14 +15,17 @@ test.on("message", (message) => {
         return;
     }
     if (message.content.indexOf("컷") != -1) {
-        doCut(message.content);
+        if (doCut(message.content) == true) {
+            message.reply(message.comtent + " 확인");
+        }
     } else if (message.content.indexOf("점검") != -1) {
         doReset(message.content);
+        message.reply(getTargets());
+    } else if (message.content.indexOf("보스") != -1) {
+        message.reply(getTargets());
     } else {
         doCut(message.content);
-    }
-
-    message.reply(getTargets());
+    } 
 });
 
 function init() {
@@ -70,8 +73,10 @@ function setCut(id, time) {
             targetList[i].cut = date;
             date.setHours(date.getHours() + targetList[i].time);
             targetList[i].gen = date;
+            return true;
         }
     }
+    return false;
 }
 
 function getTime(time) {
@@ -150,7 +155,7 @@ function doCut(str)
         time = newTime;
     }
 
-    setCut(id, time);
+    return setCut(id, time);
 }
 
 function refineStr(str)
