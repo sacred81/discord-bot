@@ -104,6 +104,9 @@ function setCut(id, time, expect) {
         if (id == targetList[i].id) {
             var date = genDate();
             var splitted = time.split(":");
+            if (!checkNum(splitted[0], 0, 23) || !checkNum(splitted[1], 0, 59)) {
+                return false;
+            }
             date.setHours(splitted[0], splitted[1], 0, 0);
             targetList[i].cut = date;
             date.setHours(date.getHours() + targetList[i].time);
@@ -113,6 +116,19 @@ function setCut(id, time, expect) {
         }
     }
     return false;
+}
+
+function checkNum(target, min, max) {
+    if (isNaN(target)) {
+        return false;
+    }
+    if (target < min) {
+        return false;
+    }
+    if (target > max) {
+        return false;
+    }
+    return true;
 }
 
 function getTime(time) {
