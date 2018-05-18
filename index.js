@@ -22,9 +22,10 @@ test.on("message", (message) => {
             processed = true;
         }
     } else if (message.content.indexOf("리셋") != -1) {
-        doReset(message.content);
-        message.reply(getTargets());
-        processed = true;
+        if (doReset(message.content) == true) {
+            message.reply(getTargets());
+            processed = true;
+        }
     } else if (message.content.indexOf("예상") != -1) {
         if (doExpect(message.content) == true) {
             message.reply(message.content + " 확인");
@@ -140,9 +141,16 @@ function getTime(time) {
 }
 
 function reset(time) {
-    for (var i = 0; i < targetList.length; i++) {
-        targetList[i].gen = genDate();
+    var gen = genDate();
+    var splitted = time.split(":");
+    if (!checkNum(splitted[0], 0, 23) || !checkNum(splitted[1], 0, 59)) {
+        return false;
     }
+    gen.setHours(splitted[0], splitted[1], 0, 0);
+    for (var i = 0; i < targetList.length; i++) {
+        targetList[i].gen = gen;
+    }
+    return true;
 }
 
 function getTargets()
@@ -192,7 +200,7 @@ function doReset(str)
         }
         time = newTime;
     }
-    reset(time);
+    return reset(time);
 }
 
 function doExpect(str)
