@@ -1,14 +1,13 @@
 const D = require("discord.js");
 const test = new D.Client();
+var targetList;
+init();
+var version = "v20180518-1";
 
 test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
 var command = "!";
-var version = "v20180518-1";
 
 //var command = ".";
-var targetList;
-
-init();
 //startTest();
 //argvTest();
 
@@ -41,7 +40,7 @@ test.on("message", (message) => {
         }
     }
     if (!processed) {
-        message.reply(getUsage());
+        message.reply(getUsage(message.content));
     }
 });
 
@@ -80,6 +79,12 @@ function init() {
     targetList.push(new Target("카파", 2));
     targetList.push(new Target("커츠", 5));
     targetList.push(new Target("피닉", 7));
+}
+
+function genDate()
+{
+   var now = new Date();
+   return new Date(now - ((now.getTimezoneOffset() + 540) * 60 * 1000));
 }
 
 function Target(id, time) {
@@ -126,7 +131,7 @@ function reset(time) {
 function getTargets()
 {
     sortTargets();
-    var now = new Date();
+    var now = genDate();
     now.setHours(now.getHours() - 1);
     var targets = "";
     for (var i = 0; i < targetList.length; i++) {
@@ -136,6 +141,7 @@ function getTargets()
         " " + dateString(targetList[i].gen) +
         "\n";
     }
+    var now = genDate();
     targets = targets + dateString(now);
     return targets;
 }
