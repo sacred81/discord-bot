@@ -2,14 +2,25 @@ const D = require("discord.js");
 const test = new D.Client();
 var targetList;
 init();
-var version = "v20180518-1";
 
-test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
+var version = "v20180518-1";
 var command = "!";
+
+// 태스트
+test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
+var channelId = "446510566165577732";
+
+// test2
+//test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
+//var channelId = "446912419877617686";
 
 //var command = ".";
 //startTest();
 //argvTest();
+
+test.on('ready', () => {
+    sendMessage("I am ready : version = " + version);
+});
 
 test.on("message", (message) => {
     if (message.content[0] != command) {
@@ -44,6 +55,11 @@ test.on("message", (message) => {
         message.reply(getUsage(message.content));
     }
 });
+
+function sendMessage(message)
+{
+    test.channels.get(channelId).send(message);
+}
 
 function getUsage(text)
 {
