@@ -3,7 +3,7 @@ const test = new D.Client();
 var targetList;
 init();
 
-var version = "v20180518-1";
+var version = "v20180518-2";
 var command = "!";
 
 // 태스트
@@ -17,6 +17,8 @@ var channelId = "446510566165577732";
 //var command = ".";
 //startTest();
 //argvTest();
+
+setInterval(alarmFunc, 600000);
 
 test.on('ready', () => {
     sendMessage("I am ready : version = " + version);
@@ -55,6 +57,21 @@ test.on("message", (message) => {
         message.reply(getUsage(message.content));
     }
 });
+
+function alarmFunc()
+{
+    var now = genDate();
+    var message = "";
+    for (var i = 0; i < targetList.length; i++) {
+        var diff = targetList[i].gen - now;
+        if ( 0 < diff && diff < 900000 ) {
+            message = message + "\n" + targetList[i].id + " " + getTime(targetList[i].gen) + " 예정";
+        }
+    }
+    if (message.length > 0) {
+        sendMessage(message);
+    }
+}
 
 function sendMessage(message)
 {
@@ -181,7 +198,8 @@ function getTargets()
         (targetList[i].expect == true ? " 예상" : "") +
         "\n";
     }
-    var now = genDate();
+    //var now = genDate();
+    //targets = targets + getTime(now);
     return targets;
 }
 
