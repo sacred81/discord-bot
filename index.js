@@ -21,7 +21,7 @@ test.on("message", (message) => {
             message.reply(message.content + " 확인");
             processed = true;
         }
-    } else if (message.content.indexOf("점검") != -1) {
+    } else if (message.content.indexOf("리셋") != -1) {
         doReset(message.content);
         message.reply(getTargets());
         processed = true;
@@ -48,10 +48,11 @@ function getUsage(text)
 {
     var str = "";
     if (text) {
-        str = str + text + " ??\n";
+        str = str + text + " ??";
     }
-    str = str + "\"!\" : <목록>, \"!점검 0524\" : <점검시간 입력>, \"!1024 기감\" : <컷시간 입력>, \"!1024 기감 예상\" : <예상 컷시간 입력>\n";
-    str = str + "1시간 이전 내용은 누락 표시. ( version : " + version + " )";
+    str = str + "\n";
+    str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n";
+    str = str + "1시간 이전 내용은 누락 표시.\n( version : " + version + " )";
     return str;
 }
 
@@ -124,7 +125,7 @@ function getTime(time) {
 
 function reset(time) {
     for (var i = 0; i < targetList.length; i++) {
-        setCut(targetList[i].id, time, false);
+        targetList[i].gen = genDate();
     }
 }
 
@@ -133,17 +134,14 @@ function getTargets()
     sortTargets();
     var now = genDate();
     now.setHours(now.getHours() - 1);
-    var targets = "";
+    var targets = "\n";
     for (var i = 0; i < targetList.length; i++) {
         targets = targets + targetList[i].id + " " + getTime(targetList[i].gen) + 
         (targetList[i].gen < now ? " 누락" : "") +
         (targetList[i].expect == true ? " 예상" : "") +
-        " " + dateString(targetList[i].gen) +
         "\n";
     }
     var now = genDate();
-    targets = targets + dateString(now);
-    targets = targets + "\nTimezone offset = " + now.getTimezoneOffset();
     return targets;
 }
 
@@ -229,7 +227,7 @@ function refineStr(str)
 {
     str = str.replace(command, "");
     str = str.replace("컷", "");
-    str = str.replace("점검", "");
+    str = str.replace("리셋", "");
     str = str.replace("예상", "");
     var splitted = str.split(" ");
     splitted = splitted.filter((val) => val.trim() != "");
@@ -247,7 +245,7 @@ function startTest()
     printTargets();
     doCut("!기감컷 2038");
     printTargets();
-    doReset("!점검 09:00");
+    doReset("!리셋 09:00");
     printTargets();
     doCut("!1231 빨샤컷");
     printTargets();
@@ -270,7 +268,7 @@ function argvTest()
     }
     if (str.indexOf("컷") != -1) {
         doCut(str);
-    } else if (str.indexOf("점검") != -1) {
+    } else if (str.indexOf("리셋") != -1) {
         doReset(str);
     } else if (str.indexOf("예상") != -1) {
         doExpect(str);
