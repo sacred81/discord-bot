@@ -12,10 +12,6 @@ init();
 //startTest();
 //argvTest();
 
-test.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
-});
-
 test.on("message", (message) => {
     if (message.content[0] != command) {
         return;
