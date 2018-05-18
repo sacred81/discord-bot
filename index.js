@@ -84,11 +84,11 @@ function init() {
 function genDate()
 {
    var now = new Date();
-   return new Date(now - ((now.getTimezoneOffset() + 540) * 60 * 1000));
+   return new Date(now - ((now.getTimezoneOffset() - 540) * 60 * 1000));
 }
 
 function Target(id, time) {
-    var date = new Date();
+    var date = genDate();
     date.setHours(0, 0, 0, 0);
     this.id = id;
     this.time = time;
@@ -101,7 +101,7 @@ function Target(id, time) {
 function setCut(id, time, expect) {
     for (var i = 0; i < targetList.length; i++) {
         if (id == targetList[i].id) {
-            var date = new Date();
+            var date = genDate();
             var splitted = time.split(":");
             date.setHours(splitted[0], splitted[1], 0, 0);
             targetList[i].cut = date;
@@ -143,6 +143,7 @@ function getTargets()
     }
     var now = genDate();
     targets = targets + dateString(now);
+    targets = targets + "\nTimezone offset = " + now.getTimezoneOffset();
     return targets;
 }
 
