@@ -3,7 +3,8 @@ const test = new D.Client();
 var targetList;
 init();
 
-var version = "v20180518-2";
+var version = "v20180519-1";
+var comment = "멍처리 추가, 누락 내용에 예상시간 추가"
 var command = "!";
 
 // 태스트
@@ -21,7 +22,9 @@ var channelId = "446510566165577732";
 setInterval(alarmFunc, 600000);
 
 test.on('ready', () => {
-    sendMessage("I am ready : version = " + version);
+    var message = "I am ready! : version = " + version;
+    message = message + "\nChanges : " + comment;
+    sendMessage(message);
 });
 
 test.on("message", (message) => {
@@ -41,6 +44,11 @@ test.on("message", (message) => {
         }
     } else if (message.content.indexOf("예상") != -1) {
         if (doExpect(message.content) == true) {
+            message.reply(message.content + " 확인");
+            processed = true;
+        }
+    } else if (message.content.indexOf("멍") != -1) {
+        if (doSkip(message.content) == true) {
             message.reply(message.content + " 확인");
             processed = true;
         }
@@ -186,6 +194,19 @@ function reset(time) {
     return true;
 }
 
+function getUncheckedTime(gen, now, time)
+{
+    var text = " 누락 ";
+    var count = 0;
+    var temp = new Date(gen);
+    while (temp < now) {
+        temp.setHours(temp.getHours() + time);
+        count = count + 1;
+    }
+    text = text + count + "회   " + getTime(temp) + " 예상";
+    return text;
+}
+
 function getTargets()
 {
     sortTargets();
@@ -193,8 +214,9 @@ function getTargets()
     now.setHours(now.getHours() - 1);
     var targets = "\n";
     for (var i = 0; i < targetList.length; i++) {
+        var checked = !(targetList[i].gen < now);
         targets = targets + targetList[i].id + " " + getTime(targetList[i].gen) + 
-        (targetList[i].gen < now ? " 누락" : "") +
+        (checked ? "" : getUncheckedTime(targetList[i].gen, now, targetList[i].time)) +
         (targetList[i].expect == true ? " 예상" : "") +
         "\n";
     }
@@ -211,6 +233,25 @@ function sortTargets()
 function dateString(date)
 {
     return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes();
+}
+
+function doSkip(str)
+{
+    var splitted = refineStr(str);
+    if (splitted.length != 1) {
+        return false;
+    }
+    var id = splitted[0];
+    for (var i = 0; i < targetList.length; i++) {
+        if (id == targetList[i].id) {
+            targetList[i].cut = targetList[i].gen;
+            var newDate = new Date(targetList[i].cut);
+            newDate.setHours(targetList[i].cut.getHours() + targetList[i].time);
+            targetList[i].gen = newDate;
+            targetList[i].expect = false;
+            return true;
+        }
+    }
 }
 
 function doReset(str)
@@ -287,6 +328,7 @@ function refineStr(str)
     str = str.replace("컷", "");
     str = str.replace("리셋", "");
     str = str.replace("예상", "");
+    str = str.replace("멍", "");
     var splitted = str.split(" ");
     splitted = splitted.filter((val) => val.trim() != "");
     splitted.sort();
