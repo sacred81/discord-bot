@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/sacred81/discord-bot#readme",
   "dependencies": {
-    "discord.js": "^11.3.2"
+    "discord.js": "^11.3.2",
+    "google-spreadsheet": "^2.0.3"
   }
 }

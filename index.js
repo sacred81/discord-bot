@@ -1,10 +1,16 @@
 const D = require("discord.js");
 const fs = require('fs');
+var GoogleSpreadsheet = require('google-spreadsheet');
+var creds = require('./client_secret.json');
 const test = new D.Client();
 var targetList;
+var targetCount = 22;
 init();
 
-var version = "v20180522-2";
+var sheetId = "1MMk4ZpXswdeEjBjYXbIpsJXGwOL8j8MLldIZ_KSBtao";
+var doc = new GoogleSpreadsheet(sheetId);
+
+var version = "v20180522-3";
 var comment = "일괄입력 추가, 누락시 2분 추가, 봇 재시작시 최근 내용 불러오기";
 var command = "!";
 
@@ -19,8 +25,9 @@ var channelId = "446510566165577732";
 setInterval(alarmFunc, 600000);
 
 test.on('ready', () => {
-    var message = "I am ready! : version = " + version;
+    var message = "I am ready! <version> = " + version + " <보스> " + targetList.length + " 종";
     message = message + "\nChanges : " + comment;
+
     sendMessage(message);
     load();
 });
@@ -71,6 +78,24 @@ test.on("message", (message) => {
 
 function load()
 {
+    doc.useServiceAccountAuth(creds, function (err) {
+        doc.getCells(1, function (err, cells) {
+            targetList = JSON.parse(cells[0].value);
+            if (targetList.length != 22) {
+                sendMessage("로드 실패");
+                init();
+            } else {
+                for (var i = 0; i < targetList.length; i++) {
+                    targetList[i].cut = new Date(targetList[i].cut);
+                    targetList[i].gen = new Date(targetList[i].gen);
+                }
+                sendMessage("로드 완료");
+            }
+            sendMessage(getTargets());
+        });
+    });
+    // Use local file
+    /*
     if (fs.existsSync('target-list.json')) {
         var data = fs.readFileSync('target-list.json');  
         targetList = JSON.parse(data);
@@ -79,12 +104,23 @@ function load()
         targetList[i].cut = new Date(targetList[i].cut);
         targetList[i].gen = new Date(targetList[i].gen);
     }
+    */
 }
 
 function save()
 {
+    doc.useServiceAccountAuth(creds, function (err) {
+        doc.getCells(1, function (err, cells) {
+            cells[0].value = JSON.stringify(targetList);
+            cells[0].save(function (err) {
+            });
+        });
+    });
+    // Use local file
+    /* 
     var data = JSON.stringify(targetList);
     fs.writeFileSync('target-list.json', data); 
+    */
 }
 
 function alarmFunc()
