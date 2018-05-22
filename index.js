@@ -3,21 +3,17 @@ const test = new D.Client();
 var targetList;
 init();
 
-var version = "v20180519-1";
-var comment = "멍처리 추가, 누락 내용에 예상시간 추가"
+var version = "v20180522-1";
+var comment = "일괄입력 추가";
 var command = "!";
 
-// 태스트
+태스트
 test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
 var channelId = "446510566165577732";
 
 // test2
 //test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
 //var channelId = "446912419877617686";
-
-//var command = ".";
-//startTest();
-//argvTest();
 
 setInterval(alarmFunc, 600000);
 
@@ -32,7 +28,10 @@ test.on("message", (message) => {
         return;
     }
     var processed = false;
-    if (message.content.indexOf("컷") != -1) {
+    if (message.content.indexOf("입력") != -1) {
+        message.reply(doProcessInput(message.content));
+        processed = true;
+    } else if (message.content.indexOf("컷") != -1) {
         if (doCut(message.content) == true) {
             message.reply(message.content + " 확인");
             processed = true;
@@ -93,8 +92,8 @@ function getUsage(text)
         str = str + text + " ??";
     }
     str = str + "\n";
-    str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n";
-    str = str + "1시간 이전 내용은 누락 표시.\n( version : " + version + " )";
+    str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n<멍처리> : \"!기감멍\"\n";
+    str = str + "1시간 이전 내용은 누락 표시.  문의 : 보금자리\n( version : " + version + " )";
     return str;
 }
 
@@ -258,10 +257,6 @@ function doReset(str)
 {
     var splitted = refineStr(str);
     if (splitted.length != 1) {
-        console.log("doReset : invalid length! : " + splitted.length);
-        for (var i = 0; i < splitted.length; i++) {
-            console.log("splitted = " + splitted[i]);
-        }
         return;
     }
     var time = splitted[0];
@@ -322,6 +317,57 @@ function doCut(str)
     return setCut(id, time, false);
 }
 
+function doSet(str)
+{
+    var expected = (str.indexOf("예상") != -1);
+    var splitted = refineStr(str);
+    if (splitted.length != 2) {
+        return false;
+    }
+    var time = splitted[0];
+    var id = splitted[1];
+    if (time.indexOf(":") == -1) {
+        var newTime = "";
+        for (var i = 0; i < time.length; i++) {
+            if (i == time.length -2) {
+                newTime = newTime + ":";
+            }
+            newTime = newTime + time[i];
+        }
+        time = newTime;
+    }
+    for (var i = 0; i < targetList.length; i++) {
+        if (id == targetList[i].id) {
+            var date = genDate();
+            var splitted = time.split(":");
+            if (!checkNum(splitted[0], 0, 23) || !checkNum(splitted[1], 0, 59)) {
+                return false;
+            }
+            date.setHours(splitted[0], splitted[1], 0, 0);
+            targetList[i].gen = date;
+            targetList[i].expect = expected;
+            return true;
+        }
+    }
+    return false;
+}
+
+function doProcessInput(str)
+{
+    var retMessage = "";
+    var splitted = str.split("!");
+    splitted = splitted.filter((val) => val.trim() != "");
+    for (var i = 1; i < splitted.length; i++) {
+        var content = splitted[i];
+        if (doSet(content)) {
+            retMessage = retMessage + content + " 확인\n";
+        } else {
+            retMessage = retMessage + content + " 실패\n";
+        }
+    }
+    return retMessage;
+}
+
 function refineStr(str)
 {
     str = str.replace(command, "");
@@ -333,49 +379,4 @@ function refineStr(str)
     splitted = splitted.filter((val) => val.trim() != "");
     splitted.sort();
     return splitted;
-}
-
-function printTargets()
-{
-    console.log(getTargets());
-}
-
-function startTest()
-{
-    printTargets();
-    doCut("!기감컷 2038");
-    printTargets();
-    doReset("!리셋 09:00");
-    printTargets();
-    doCut("!1231 빨샤컷");
-    printTargets();
-}
-
-function argvTest()
-{
-    var str = "";
-    var arg = process.argv;
-    for (var i = 2; i < arg.length; i++) {
-        str = str + arg[i];
-        if (i < arg.length -1) {
-            str = str + " ";
-        }
-    }
-
-    console.log("input = " + str);
-    if (str[0] != command) {
-        return;
-    }
-    if (str.indexOf("컷") != -1) {
-        doCut(str);
-    } else if (str.indexOf("리셋") != -1) {
-        doReset(str);
-    } else if (str.indexOf("예상") != -1) {
-        doExpect(str);
-    } else {
-        doCut(str);
-    }
-
-    console.log(getTargets());
-    console.log(getUsage("123"));
 }
