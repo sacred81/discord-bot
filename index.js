@@ -1,10 +1,11 @@
 const D = require("discord.js");
+const fs = require('fs');
 const test = new D.Client();
 var targetList;
 init();
 
-var version = "v20180522-1";
-var comment = "일괄입력 추가";
+var version = "v20180522-2";
+var comment = "일괄입력 추가, 누락시 2분 추가, 봇 재시작시 최근 내용 불러오기";
 var command = "!";
 
 // 태스트
@@ -21,6 +22,7 @@ test.on('ready', () => {
     var message = "I am ready! : version = " + version;
     message = message + "\nChanges : " + comment;
     sendMessage(message);
+    load();
 });
 
 test.on("message", (message) => {
@@ -62,8 +64,28 @@ test.on("message", (message) => {
     }
     if (!processed) {
         message.reply(getUsage(message.content));
+    } else {
+        save();
     }
 });
+
+function load()
+{
+    if (fs.existsSync('target-list.json')) {
+        var data = fs.readFileSync('target-list.json');  
+        targetList = JSON.parse(data);
+    }
+    for (var i = 0; i < targetList.length; i++) {
+        targetList[i].cut = new Date(targetList[i].cut);
+        targetList[i].gen = new Date(targetList[i].gen);
+    }
+}
+
+function save()
+{
+    var data = JSON.stringify(targetList);
+    fs.writeFileSync('target-list.json', data); 
+}
 
 function alarmFunc()
 {
@@ -202,6 +224,7 @@ function getUncheckedTime(gen, now, time)
         temp.setHours(temp.getHours() + time);
         count = count + 1;
     }
+    temp.setMinutes(temp.getMinutes() + (2 * count));
     text = text + count + "회   " + getTime(temp) + " 예상";
     return text;
 }
@@ -355,7 +378,7 @@ function doSet(str)
 function doProcessInput(str)
 {
     var retMessage = "";
-    var splitted = str.split("!");
+    var splitted = str.split("\n");
     splitted = splitted.filter((val) => val.trim() != "");
     for (var i = 1; i < splitted.length; i++) {
         var content = splitted[i];
