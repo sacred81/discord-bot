@@ -181,10 +181,16 @@ function init() {
     targetList.push(new Target("피닉", 7));
 }
 
-function genDate()
+function genDate(date)
 {
-   var now = new Date();
-   return new Date(now - ((now.getTimezoneOffset() - 540) * 60 * 1000));
+    var now;
+    if (date) {
+        now = date
+    } else {
+        now = new Date();
+    }
+   
+    return new Date(now - ((now.getTimezoneOffset() - 540) * 60 * 1000));
 }
 
 function Target(id, time) {
