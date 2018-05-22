@@ -7,7 +7,7 @@ var version = "v20180522-1";
 var comment = "일괄입력 추가";
 var command = "!";
 
-태스트
+// 태스트
 test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
 var channelId = "446510566165577732";
 
