@@ -2,25 +2,22 @@ const D = require("discord.js");
 const fs = require('fs');
 var GoogleSpreadsheet = require('google-spreadsheet');
 var creds = require('./client_secret.json');
-const test = new D.Client();
+var test = new D.Client();
 var targetList;
 var targetCount = 22;
-init();
+var channelId = 0;
 
 var sheetId = "1MMk4ZpXswdeEjBjYXbIpsJXGwOL8j8MLldIZ_KSBtao";
 var doc = new GoogleSpreadsheet(sheetId);
 
-var version = "v20180522-3";
-var comment = "일괄입력 추가, 누락시 2분 추가, 봇 재시작시 최근 내용 불러오기";
 var command = "!";
 
-// 태스트
-test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
-var channelId = "446510566165577732";
+// Configuration
+var isTest = false;
+var version = "v20180530-1";
+var comment = "누락분 예상시간 정렬";
 
-// test2
-//test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
-//var channelId = "446912419877617686";
+init();
 
 setInterval(alarmFunc, 600000);
 
@@ -29,7 +26,9 @@ test.on('ready', () => {
     message = message + "\nChanges : " + comment;
 
     sendMessage(message);
-    load();
+    if (isTest == false) {
+        load();
+    }
 });
 
 test.on("message", (message) => {
@@ -71,7 +70,7 @@ test.on("message", (message) => {
     }
     if (!processed) {
         message.reply(getUsage(message.content));
-    } else {
+    } else if (isTest == false) {
         save();
     }
 });
@@ -179,6 +178,14 @@ function init() {
     targetList.push(new Target("카파", 2));
     targetList.push(new Target("커츠", 5));
     targetList.push(new Target("피닉", 7));
+
+    if (isTest == true) {
+        test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
+        channelId = "446912419877617686";
+    } else {
+        test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
+        channelId = "446510566165577732";
+    }
 }
 
 function genDate(date)
@@ -291,7 +298,35 @@ function getTargets()
 
 function sortTargets()
 {
-    targetList.sort(function(a, b) { return (a.gen > b.gen) ? 1 : -1; });
+    targetList.sort(function(a, b) {
+        var now = genDate();
+        if (a.gen >= now && b.gen >= now) {
+            return (a.gen > b.gen) ? 1 : -1;
+        }
+        if (a.gen >= now && b.gen < now) {
+            return 1;
+        }
+        if (a.gen < now && b.gen >= now) {
+            return -1;
+        }
+        var count = 0;
+        var expectA = new Date(a.gen);
+        while (expectA < now) {
+            expectA.setHours(expectA.getHours() + a.time);
+            count = count + 1;
+        }
+        expectA.setMinutes(expectA.getMinutes() + (2 * count));
+
+        count = 0;
+        var expectB = new Date(b.gen);
+        while (expectB < now) {
+            expectB.setHours(expectB.getHours() + b.time);
+            count = count + 1;
+        }
+        expectB.setMinutes(expectB.getMinutes() + (2 * count));
+
+        return (expectA > expectB) ? 1 : -1;
+    });
 }
 
 function dateString(date)
