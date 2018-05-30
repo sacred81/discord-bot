@@ -14,7 +14,7 @@ var command = "!";
 
 // Configuration
 var isTest = false;
-var version = "v20180530-1";
+var version = "v20180530-2";
 var comment = "누락분 예상시간 정렬";
 
 init();
@@ -309,6 +309,7 @@ function sortTargets()
         if (a.gen < now && b.gen >= now) {
             return -1;
         }
+        now.setHours(now.getHours() - 1);
         var count = 0;
         var expectA = new Date(a.gen);
         while (expectA < now) {
