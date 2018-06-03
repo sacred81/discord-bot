@@ -300,6 +300,7 @@ function sortTargets()
 {
     targetList.sort(function(a, b) {
         var now = genDate();
+        now.setHours(now.getHours() - 1);
         if (a.gen >= now && b.gen >= now) {
             return (a.gen > b.gen) ? 1 : -1;
         }
@@ -309,7 +310,6 @@ function sortTargets()
         if (a.gen < now && b.gen >= now) {
             return -1;
         }
-        now.setHours(now.getHours() - 1);
         var count = 0;
         var expectA = new Date(a.gen);
         while (expectA < now) {
