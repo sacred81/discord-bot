@@ -14,8 +14,8 @@ var command = "!";
 
 // Configuration
 var isTest = false;
-var version = "v20180530-2";
-var comment = "누락분 예상시간 정렬";
+var version = "v20180612-1";
+var comment = "리셋에 예상 내역 초기화";
 
 init();
 
@@ -260,6 +260,7 @@ function reset(time) {
     gen.setHours(splitted[0], splitted[1], 0, 0);
     for (var i = 0; i < targetList.length; i++) {
         targetList[i].gen = gen;
+        targetList[i].expect = false;
     }
     return true;
 }
@@ -288,7 +289,7 @@ function getTargets()
         var checked = !(targetList[i].gen < now);
         targets = targets + targetList[i].id + " " + getTime(targetList[i].gen) + 
         (checked ? "" : getUncheckedTime(targetList[i].gen, now, targetList[i].time)) +
-        (targetList[i].expect == true ? " 예상" : "") +
+        ((checked == true && targetList[i].expect == true) ? " 예상" : "") +
         "\n";
     }
     //var now = genDate();
