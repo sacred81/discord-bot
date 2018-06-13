@@ -14,7 +14,7 @@ var command = "!";
 
 // Configuration
 var isTest = false;
-var version = "v20180613-1";
+var version = "v20180613-2";
 var comment = "보스 목록 추가/삭제";
 
 init();
@@ -301,6 +301,7 @@ function getTargets()
         targets = targets + targetList[i].id + " " + getTime(targetList[i].gen) + 
         (checked ? "" : getUncheckedTime(targetList[i].gen, now, targetList[i].time)) +
         ((checked == true && targetList[i].expect == true) ? " 예상" : "") +
+        targetList[i].time + 
         "\n";
     }
     //var now = genDate();
@@ -365,7 +366,7 @@ function doAdd(str)
     if (isExist == true) {
         return false;
     }
-    targetList.push(new Target(id, time));
+    targetList.push(new Target(id, time*1));
     return true;
 }
 
