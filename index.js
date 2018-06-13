@@ -301,7 +301,6 @@ function getTargets()
         targets = targets + targetList[i].id + " " + getTime(targetList[i].gen) + 
         (checked ? "" : getUncheckedTime(targetList[i].gen, now, targetList[i].time)) +
         ((checked == true && targetList[i].expect == true) ? " 예상" : "") +
-        targetList[i].time + 
         "\n";
     }
     //var now = genDate();
