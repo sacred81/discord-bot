@@ -191,11 +191,13 @@ function init() {
     targetList.push(new Target("피닉", 7));
 
     if (isTest == true) {
-        test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
-        channelId = "446912419877617686";
+        test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0"); // TestBot
+        channelId = "446510566165577732"; // 태스트, general
+        //test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
+        //channelId = "446912419877617686";
     } else {
-        test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0");
-        channelId = "446510566165577732";
+        test.login("NDU2MjgyNjgzODE1NzU1Nzc2.DgKchA.BOT8xu0qP5hBqMJ4nsIiY5zJ7PA"); // 보탐봇
+        channelId = "428025595973206046"; // 연합, 보스시간
     }
 }
 
