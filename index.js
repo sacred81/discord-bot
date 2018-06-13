@@ -14,8 +14,8 @@ var command = "!";
 
 // Configuration
 var isTest = false;
-var version = "v20180612-1";
-var comment = "리셋에 예상 내역 초기화";
+var version = "v20180613-1";
+var comment = "보스 목록 추가/삭제";
 
 init();
 
@@ -59,6 +59,16 @@ test.on("message", (message) => {
             message.reply(message.content + " 확인");
             processed = true;
         }
+    } else if (message.content.indexOf("추가") != -1) {
+        if (doAdd(message.content) == true) {
+            message.reply(message.content + " 확인");
+            processed = true;
+        }
+    } else if (message.content.indexOf("삭제") != -1) {
+        if (doRemove(message.content) == true) {
+            message.reply(message.content + " 확인");
+            processed = true;
+        }
     } else if (message.content.trim().length == 1) {
         message.reply(getTargets());
         processed = true;
@@ -80,7 +90,7 @@ function load()
     doc.useServiceAccountAuth(creds, function (err) {
         doc.getCells(1, function (err, cells) {
             targetList = JSON.parse(cells[0].value);
-            if (targetList.length != 22) {
+            if (targetList.length == 0) {
                 sendMessage("로드 실패");
                 init();
             } else {
@@ -150,6 +160,7 @@ function getUsage(text)
     }
     str = str + "\n";
     str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n<멍처리> : \"!기감멍\"\n";
+    str = str + "<보스 목록 추가> : \"!추가 산적 3\"\n<보스 목록 삭제> : \"!삭제 산적\"\n";
     str = str + "1시간 이전 내용은 누락 표시.  문의 : 보금자리\n( version : " + version + " )";
     return str;
 }
@@ -336,6 +347,48 @@ function dateString(date)
     return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes();
 }
 
+function doAdd(str)
+{
+    var splitted = refineStr(str);
+    if (splitted.length != 2) {
+        return false;
+    }
+    var id = splitted[0];
+    var time = splitted[1];
+    var isExist = false;
+    for (var i = 0; i < targetList.length; i++) {
+        if (id == targetList[i].id) {
+            isExist = true;
+            break;
+        }
+    }
+    if (isExist == true) {
+        return false;
+    }
+    targetList.push(new Target(id, time));
+}
+
+function doRemove(str)
+{
+    var splitted = refineStr(str);
+    if (splitted.length != 1) {
+        return false;
+    }
+    var id = splitted[0];
+    var isExist = false;
+    for (var i = 0; i < targetList.length; i++) {
+        if (id == targetList[i].id) {
+            isExist = true;
+            targetList.splice(i, 1);
+            break;
+        }
+    }
+    if (isExist == false) {
+        return false;
+    }
+    return true;
+}
+
 function doSkip(str)
 {
     var splitted = refineStr(str);
@@ -477,6 +530,8 @@ function refineStr(str)
     str = str.replace("리셋", "");
     str = str.replace("예상", "");
     str = str.replace("멍", "");
+    str = str.replace("추가", "");
+    str = str.replace("삭제", "");
     var splitted = str.split(" ");
     splitted = splitted.filter((val) => val.trim() != "");
     splitted.sort();
