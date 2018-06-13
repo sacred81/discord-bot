@@ -353,8 +353,8 @@ function doAdd(str)
     if (splitted.length != 2) {
         return false;
     }
-    var id = splitted[0];
-    var time = splitted[1];
+    var id = splitted[1];
+    var time = splitted[0];
     var isExist = false;
     for (var i = 0; i < targetList.length; i++) {
         if (id == targetList[i].id) {
@@ -366,6 +366,7 @@ function doAdd(str)
         return false;
     }
     targetList.push(new Target(id, time));
+    return true;
 }
 
 function doRemove(str)
