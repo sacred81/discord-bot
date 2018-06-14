@@ -196,7 +196,7 @@ function init() {
         //test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
         //channelId = "446912419877617686";
     } else {
-        test.login("NDU2MjgyNjgzODE1NzU1Nzc2.DgKchA.BOT8xu0qP5hBqMJ4nsIiY5zJ7PA"); // 보탐봇
+        test.login("NDU2NzEzMjMwMDc3Nzg4MTYz.DgOjCQ.Hlg-OqwMCvaCbSPrYrrGdZMWAOE"); // 보탐봇
         channelId = "428025595973206046"; // 연합, 보스시간
     }
 }
