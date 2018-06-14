@@ -14,15 +14,15 @@ var command = "!";
 
 // Configuration
 var isTest = false;
-var version = "v20180613-2";
-var comment = "보스 목록 추가/삭제";
+var version = "v20180614-1";
+var comment = "에자/커츠/데스/피닉 예상시간 변경";
 
 init();
 
 setInterval(alarmFunc, 600000);
 
 test.on('ready', () => {
-    var message = "I am ready! <version> = " + version + " <보스> " + targetList.length + " 종";
+    var message = "I am ready! <version> = " + version;
     message = message + "\nChanges : " + comment;
 
     sendMessage(message);
@@ -191,10 +191,8 @@ function init() {
     targetList.push(new Target("피닉", 7));
 
     if (isTest == true) {
-        test.login("NDQ2NTU1NzQ1MjQ1MzMxNDYz.Dd6vEQ.azN7Mhva-L7zOMk0SnJWa8Zt7m0"); // TestBot
-        channelId = "446510566165577732"; // 태스트, general
-        //test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
-        //channelId = "446912419877617686";
+        test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
+        channelId = "446912419877617686";
     } else {
         test.login("NDU2NzEzMjMwMDc3Nzg4MTYz.DgOjCQ.Hlg-OqwMCvaCbSPrYrrGdZMWAOE"); // 보탐봇
         channelId = "428025595973206046"; // 연합, 보스시간
@@ -278,7 +276,7 @@ function reset(time) {
     return true;
 }
 
-function getUncheckedTime(gen, now, time)
+function getUncheckedTime(id, gen, now, time)
 {
     var text = " 누락 ";
     var count = 0;
@@ -287,7 +285,9 @@ function getUncheckedTime(gen, now, time)
         temp.setHours(temp.getHours() + time);
         count = count + 1;
     }
-    temp.setMinutes(temp.getMinutes() + (2 * count));
+    if (id != "에자" && id != "커츠" && id != "피닉" && id != "데스") {
+        temp.setMinutes(temp.getMinutes() + (2 * count));
+    }
     text = text + count + "회   " + getTime(temp) + " 예상";
     return text;
 }
@@ -301,7 +301,7 @@ function getTargets()
     for (var i = 0; i < targetList.length; i++) {
         var checked = !(targetList[i].gen < now);
         targets = targets + targetList[i].id + " " + getTime(targetList[i].gen) + 
-        (checked ? "" : getUncheckedTime(targetList[i].gen, now, targetList[i].time)) +
+        (checked ? "" : getUncheckedTime(targetList[i].id, targetList[i].gen, now, targetList[i].time)) +
         ((checked == true && targetList[i].expect == true) ? " 예상" : "") +
         "\n";
     }
