@@ -92,22 +92,17 @@ function load()
 {
     doc.useServiceAccountAuth(creds, function (err) {
         doc.getCells(1, function (err, cells) {
-            if (!cells[0]) {
+            targetList = JSON.parse(cells[0].value);
+            if (targetList.length == 0) {
                 sendMessage("로드 실패");
                 init();
             } else {
-                targetList = JSON.parse(cells[0].value);
-                if (targetList.length == 0) {
-                    sendMessage("로드 실패");
-                    init();
-                } else {
-                    for (var i = 0; i < targetList.length; i++) {
-                        targetList[i].cut = new Date(targetList[i].cut);
-                        targetList[i].gen = new Date(targetList[i].gen);
-                        targetList[i].time = new Date(targetList[i].time);
-                    }
-                    sendMessage("로드 완료");
+                for (var i = 0; i < targetList.length; i++) {
+                    targetList[i].cut = new Date(targetList[i].cut);
+                    targetList[i].gen = new Date(targetList[i].gen);
+                    targetList[i].time = new Date(targetList[i].time);
                 }
+                sendMessage("로드 완료");
             }
             sendMessage(getTargets());
         });
