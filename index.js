@@ -14,8 +14,8 @@ var command = "!";
 
 // Configuration
 var isTest = false;
-var version = "v20180614-1";
-var comment = "에자/커츠/데스/피닉 예상시간 변경";
+var version = "v20180627-2";
+var comment = "분단위 젠 기능 추가";
 
 init();
 
@@ -33,6 +33,9 @@ test.on('ready', () => {
 
 test.on("message", (message) => {
     if (message.content[0] != command) {
+        return;
+    }
+    if (message.channel.id != channelId) {
         return;
     }
     var processed = false;
@@ -89,17 +92,22 @@ function load()
 {
     doc.useServiceAccountAuth(creds, function (err) {
         doc.getCells(1, function (err, cells) {
-            targetList = JSON.parse(cells[0].value);
-            if (targetList.length == 0) {
+            if (!cells[0]) {
                 sendMessage("로드 실패");
                 init();
             } else {
-                for (var i = 0; i < targetList.length; i++) {
-                    targetList[i].cut = new Date(targetList[i].cut);
-                    targetList[i].gen = new Date(targetList[i].gen);
-                    targetList[i].time = new Date(targetList[i].time);
+                targetList = JSON.parse(cells[0].value);
+                if (!targetList.length) {
+                    sendMessage("로드 실패");
+                    init();
+                } else {
+                    for (var i = 0; i < targetList.length; i++) {
+                        targetList[i].cut = new Date(targetList[i].cut);
+                        targetList[i].gen = new Date(targetList[i].gen);
+                        targetList[i].time = new Date(targetList[i].time);
+                    }
+                    sendMessage("로드 완료");
                 }
-                sendMessage("로드 완료");
             }
             sendMessage(getTargets());
         });
@@ -195,6 +203,8 @@ function init() {
         test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
         channelId = "446912419877617686";
     } else {
+        //test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
+        //channelId = "446912419877617686";
         test.login("NDU2NzEzMjMwMDc3Nzg4MTYz.DgOjCQ.Hlg-OqwMCvaCbSPrYrrGdZMWAOE"); // 보탐봇
         channelId = "428025595973206046"; // 연합, 보스시간
     }
@@ -211,16 +221,35 @@ function genDate(date)
    
     return new Date(now - ((now.getTimezoneOffset() - 540) * 60 * 1000));
 }
+function calcTime(a, b)
+{
+    a.setHours(a.getHours() + b.getHours(), a.getMinutes() + b.getMinutes());
+    return a;
+}
 
 function Target(id, time) {
     var date = genDate();
     date.setHours(0, 0, 0, 0);
     this.id = id;
-    this.time = time;
     this.cut = date;
-    date.setHours(time);
-    this.gen = date;
     this.expect = false;
+
+    var tempTime = time + "";
+    if (tempTime.indexOf(":") == -1) {
+        var newTime = "";
+        for (var i = 0; i < tempTime.length; i++) {
+            if (i == tempTime.length -2) {
+                newTime = newTime + ":";
+            }
+            newTime = newTime + tempTime[i];
+        }
+        tempTime = newTime;
+    }
+    var splitted = tempTime.split(":");
+    var regenDate = genDate();
+    regenDate.setHours(splitted[0] ? splitted[0] : 0, splitted[1] ? splitted[1] : 0, 0, 0)
+    this.time = regenDate;
+    this.gen = calcTime(date, regenDate);
 }
 
 function setCut(id, time, expect) {
@@ -233,8 +262,7 @@ function setCut(id, time, expect) {
             }
             date.setHours(splitted[0], splitted[1], 0, 0);
             targetList[i].cut = date;
-            date.setHours(date.getHours() + targetList[i].time);
-            targetList[i].gen = date;
+            targetList[i].gen = calcTime(date, targetList[i].time);
             targetList[i].expect = expect;
             return true;
         }
@@ -283,7 +311,7 @@ function getUncheckedTime(id, gen, now, time)
     var count = 0;
     var temp = new Date(gen);
     while (temp < now) {
-        temp.setHours(temp.getHours() + time);
+        temp = calcTime(temp, time);
         count = count + 1;
     }
     if (id != "에자" && id != "커츠" && id != "피닉" && id != "데스") {
@@ -328,7 +356,7 @@ function sortTargets()
         var count = 0;
         var expectA = new Date(a.gen);
         while (expectA < now) {
-            expectA.setHours(expectA.getHours() + a.time);
+            expectA = calcTime(expectA, a.time);
             count = count + 1;
         }
         expectA.setMinutes(expectA.getMinutes() + (2 * count));
@@ -336,7 +364,7 @@ function sortTargets()
         count = 0;
         var expectB = new Date(b.gen);
         while (expectB < now) {
-            expectB.setHours(expectB.getHours() + b.time);
+            expectB = calcTime(expectB, b.time);
             count = count + 1;
         }
         expectB.setMinutes(expectB.getMinutes() + (2 * count));
@@ -404,8 +432,7 @@ function doSkip(str)
         if (id == targetList[i].id) {
             targetList[i].cut = targetList[i].gen;
             var newDate = new Date(targetList[i].cut);
-            newDate.setHours(targetList[i].cut.getHours() + targetList[i].time);
-            targetList[i].gen = newDate;
+            targetList[i].gen = calcTime(newDate, targetList[i].time);
             targetList[i].expect = false;
             return true;
         }
