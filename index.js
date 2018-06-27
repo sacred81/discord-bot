@@ -13,7 +13,7 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var isTest = false;
+var isTest = true;
 var version = "v20180627-1";
 var comment = "분단위 젠 기능 추가";
 
