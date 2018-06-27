@@ -100,6 +100,7 @@ function load()
                 for (var i = 0; i < targetList.length; i++) {
                     targetList[i].cut = new Date(targetList[i].cut);
                     targetList[i].gen = new Date(targetList[i].gen);
+                    targetList[i].time = new Date(targetList[i].time);
                 }
                 sendMessage("로드 완료");
             }
