@@ -13,9 +13,9 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var isTest = true;
-var version = "v20180627-1";
-var comment = "분단위 젠 기능 추가";
+var isTest = false;
+var version = "v20180614-1";
+var comment = "에자/커츠/데스/피닉 예상시간 변경";
 
 init();
 
@@ -33,9 +33,6 @@ test.on('ready', () => {
 
 test.on("message", (message) => {
     if (message.content[0] != command) {
-        return;
-    }
-    if (message.channel.id != channelId) {
         return;
     }
     var processed = false;
@@ -214,35 +211,16 @@ function genDate(date)
    
     return new Date(now - ((now.getTimezoneOffset() - 540) * 60 * 1000));
 }
-function calcTime(a, b)
-{
-    a.setHours(a.getHours() + b.getHours(), a.getMinutes() + b.getMinutes());
-    return a;
-}
 
 function Target(id, time) {
     var date = genDate();
     date.setHours(0, 0, 0, 0);
     this.id = id;
+    this.time = time;
     this.cut = date;
+    date.setHours(time);
+    this.gen = date;
     this.expect = false;
-
-    var tempTime = time + "";
-    if (tempTime.indexOf(":") == -1) {
-        var newTime = "";
-        for (var i = 0; i < tempTime.length; i++) {
-            if (i == tempTime.length -2) {
-                newTime = newTime + ":";
-            }
-            newTime = newTime + tempTime[i];
-        }
-        tempTime = newTime;
-    }
-    var splitted = tempTime.split(":");
-    var regenDate = genDate();
-    regenDate.setHours(splitted[0] ? splitted[0] : 0, splitted[1] ? splitted[1] : 0, 0, 0)
-    this.time = regenDate;
-    this.gen = calcTime(date, regenDate);
 }
 
 function setCut(id, time, expect) {
@@ -255,7 +233,8 @@ function setCut(id, time, expect) {
             }
             date.setHours(splitted[0], splitted[1], 0, 0);
             targetList[i].cut = date;
-            targetList[i].gen = calcTime(date, targetList[i].time);
+            date.setHours(date.getHours() + targetList[i].time);
+            targetList[i].gen = date;
             targetList[i].expect = expect;
             return true;
         }
@@ -304,7 +283,7 @@ function getUncheckedTime(id, gen, now, time)
     var count = 0;
     var temp = new Date(gen);
     while (temp < now) {
-        temp = calcTime(temp, time);
+        temp.setHours(temp.getHours() + time);
         count = count + 1;
     }
     if (id != "에자" && id != "커츠" && id != "피닉" && id != "데스") {
@@ -349,7 +328,7 @@ function sortTargets()
         var count = 0;
         var expectA = new Date(a.gen);
         while (expectA < now) {
-            expectA = calcTime(expectA, a.time);
+            expectA.setHours(expectA.getHours() + a.time);
             count = count + 1;
         }
         expectA.setMinutes(expectA.getMinutes() + (2 * count));
@@ -357,7 +336,7 @@ function sortTargets()
         count = 0;
         var expectB = new Date(b.gen);
         while (expectB < now) {
-            expectB = calcTime(expectB, b.time);
+            expectB.setHours(expectB.getHours() + b.time);
             count = count + 1;
         }
         expectB.setMinutes(expectB.getMinutes() + (2 * count));
@@ -425,7 +404,8 @@ function doSkip(str)
         if (id == targetList[i].id) {
             targetList[i].cut = targetList[i].gen;
             var newDate = new Date(targetList[i].cut);
-            targetList[i].gen = calcTime(newDate, targetList[i].time);
+            newDate.setHours(targetList[i].cut.getHours() + targetList[i].time);
+            targetList[i].gen = newDate;
             targetList[i].expect = false;
             return true;
         }
