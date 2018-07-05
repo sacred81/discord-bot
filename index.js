@@ -14,8 +14,8 @@ var command = "!";
 
 // Configuration
 var isTest = false;
-var version = "v20180627-2";
-var comment = "분단위 젠 기능 추가";
+var version = "v20180705-1";
+var comment = "멍카운트 추가";
 
 init();
 
@@ -105,6 +105,7 @@ function load()
                         targetList[i].cut = new Date(targetList[i].cut);
                         targetList[i].gen = new Date(targetList[i].gen);
                         targetList[i].time = new Date(targetList[i].time);
+                        targetList[i].mCount = (!targetList[i].mCount ? 0 : targetList[i].mCount * 1);
                     }
                     sendMessage("로드 완료");
                 }
@@ -169,7 +170,7 @@ function getUsage(text)
     }
     str = str + "\n";
     str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n<멍처리> : \"!기감멍\"\n";
-    str = str + "<보스 목록 추가> : \"!추가 산적 3\"\n<보스 목록 삭제> : \"!삭제 산적\"\n";
+    str = str + "<보스 목록 추가> : \"!추가 산적 0300\"\n<보스 목록 삭제> : \"!삭제 산적\"\n";
     str = str + "1시간 이전 내용은 누락 표시.  문의 : 보금자리\n( version : " + version + " )";
     return str;
 }
@@ -233,6 +234,7 @@ function Target(id, time) {
     this.id = id;
     this.cut = date;
     this.expect = false;
+    this.mCount = 0;
 
     var tempTime = time + "";
     if (tempTime.indexOf(":") == -1) {
@@ -264,6 +266,7 @@ function setCut(id, time, expect) {
             targetList[i].cut = date;
             targetList[i].gen = calcTime(date, targetList[i].time);
             targetList[i].expect = expect;
+            targetList[i].mCount = 0;
             return true;
         }
     }
@@ -301,6 +304,7 @@ function reset(time) {
     for (var i = 0; i < targetList.length; i++) {
         targetList[i].gen = gen;
         targetList[i].expect = false;
+        targetList[i].mCount = 0;
     }
     return true;
 }
@@ -332,6 +336,7 @@ function getTargets()
         targets = targets + targetList[i].id + " " + getTime(targetList[i].gen) + 
         (checked ? "" : getUncheckedTime(targetList[i].id, targetList[i].gen, now, targetList[i].time)) +
         ((checked == true && targetList[i].expect == true) ? " 예상" : "") +
+        ((!targetList[i].mCount) ? "" : (" " + targetList[i].mCount + "멍")) +
         "\n";
     }
     //var now = genDate();
@@ -434,6 +439,7 @@ function doSkip(str)
             var newDate = new Date(targetList[i].cut);
             targetList[i].gen = calcTime(newDate, targetList[i].time);
             targetList[i].expect = false;
+            targetList[i].mCount++;
             return true;
         }
     }
@@ -532,6 +538,7 @@ function doSet(str)
             date.setHours(splitted[0], splitted[1], 0, 0);
             targetList[i].gen = date;
             targetList[i].expect = expected;
+            targetList[i].mCount = 0;
             return true;
         }
     }
