@@ -201,13 +201,11 @@ function init() {
     targetList.push(new Target("피닉", 7));
 
     if (isTest == true) {
-        test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
-        channelId = "446912419877617686";
+        test.login(process.env.TEST_DISCORD_TOKEN);
+        channelId = process.env.TEST_DISCORD_CHANNEL;
     } else {
-        //test.login("NDQ2ODk4ODA2MjgyMjU2Mzg0.Dd_7mA.FAVE51y3zd3jMjKG26hNcB_XWec");
-        //channelId = "446912419877617686";
-        test.login("NDU2NzEzMjMwMDc3Nzg4MTYz.DgOjCQ.Hlg-OqwMCvaCbSPrYrrGdZMWAOE"); // 보탐봇
-        channelId = "428025595973206046"; // 연합, 보스시간
+        test.login(process.env.DISCORD_TOKEN); // 보탐봇
+        channelId = process.env.DISCORD_CHANNEL; // 연합, 보스시간
     }
 }
 
