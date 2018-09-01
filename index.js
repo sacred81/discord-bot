@@ -1,15 +1,10 @@
 const D = require("discord.js");
 const fs = require('fs');
 var GoogleSpreadsheet = require('google-spreadsheet');
-var creds = require('./client_secret.json');
 var test = new D.Client();
 var targetList;
 var targetCount = 22;
 var channelId = 0;
-
-var sheetId = process.env.SHEET_ID;
-
-var doc = new GoogleSpreadsheet(sheetId);
 
 var command = "!";
 
@@ -27,9 +22,6 @@ test.on('ready', () => {
     message = message + "\nChanges : " + comment;
 
     sendMessage(message);
-    if (isTest == false) {
-        load();
-    }
 });
 
 test.on("message", (message) => {
@@ -84,64 +76,8 @@ test.on("message", (message) => {
     }
     if (!processed) {
         message.reply(getUsage(message.content));
-    } else if (isTest == false) {
-        save();
     }
 });
-
-function load()
-{
-    doc.useServiceAccountAuth(creds, function (err) {
-        doc.getCells(1, function (err, cells) {
-            if (!cells[0]) {
-                sendMessage("로드 실패");
-                init();
-            } else {
-                targetList = JSON.parse(cells[0].value);
-                if (!targetList.length) {
-                    sendMessage("로드 실패");
-                    init();
-                } else {
-                    for (var i = 0; i < targetList.length; i++) {
-                        targetList[i].cut = new Date(targetList[i].cut);
-                        targetList[i].gen = new Date(targetList[i].gen);
-                        targetList[i].time = new Date(targetList[i].time);
-                        targetList[i].mCount = (!targetList[i].mCount ? 0 : targetList[i].mCount * 1);
-                    }
-                    sendMessage("로드 완료");
-                }
-            }
-            sendMessage(getTargets());
-        });
-    });
-    // Use local file
-    /*
-    if (fs.existsSync('target-list.json')) {
-        var data = fs.readFileSync('target-list.json');  
-        targetList = JSON.parse(data);
-    }
-    for (var i = 0; i < targetList.length; i++) {
-        targetList[i].cut = new Date(targetList[i].cut);
-        targetList[i].gen = new Date(targetList[i].gen);
-    }
-    */
-}
-
-function save()
-{
-    doc.useServiceAccountAuth(creds, function (err) {
-        doc.getCells(1, function (err, cells) {
-            cells[0].value = JSON.stringify(targetList);
-            cells[0].save(function (err) {
-            });
-        });
-    });
-    // Use local file
-    /* 
-    var data = JSON.stringify(targetList);
-    fs.writeFileSync('target-list.json', data); 
-    */
-}
 
 function alarmFunc()
 {
@@ -172,7 +108,7 @@ function getUsage(text)
     str = str + "\n";
     str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n<멍처리> : \"!기감멍\"\n";
     str = str + "<보스 목록 추가> : \"!추가 산적 0300\"\n<보스 목록 삭제> : \"!삭제 산적\"\n";
-    str = str + "1시간 이전 내용은 누락 표시.  문의 : 보금자리\n( version : " + version + " )";
+    str = str + "1시간 이전 내용은 누락 표시.\n( version : " + version + " )";
     return str;
 }
 
@@ -205,9 +141,18 @@ function init() {
         test.login(process.env.TEST_DISCORD_TOKEN);
         channelId = process.env.TEST_DISCORD_CHANNEL;
     } else {
-        test.login(process.env.DISCORD_TOKEN); // 보탐봇
-        channelId = process.env.DISCORD_CHANNEL; // 연합, 보스시간
+        console.log("token = " + getContent(process.argv[2]));
+        console.log("channelId = " + getContent(process.argv[3]));
+        test.login(getContent(process.argv[2]));
+        channelId = getContent(process.argv[3]);
     }
+}
+
+function getContent(strEnv)
+{
+    var start = strEnv.indexOf('{');
+    var end = strEnv.indexOf('}');
+    return strEnv.substr(start + 1, end - start - 1);
 }
 
 function genDate(date)
