@@ -14,9 +14,9 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var isTest = false;
-var version = "v20180705-1";
-var comment = "멍카운트 추가";
+var version = "v20190122-1";
+var comment = "적컷 추가";
+var isDiscovered = false;
 
 init();
 
@@ -27,9 +27,7 @@ test.on('ready', () => {
     message = message + "\nChanges : " + comment;
 
     sendMessage(message);
-    if (isTest == false) {
-        load();
-    }
+    load();
 });
 
 test.on("message", (message) => {
@@ -84,7 +82,7 @@ test.on("message", (message) => {
     }
     if (!processed) {
         message.reply(getUsage(message.content));
-    } else if (isTest == false) {
+    } else {
         save();
     }
 });
@@ -171,7 +169,7 @@ function getUsage(text)
     }
     str = str + "\n";
     str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n<멍처리> : \"!기감멍\"\n";
-    str = str + "<보스 목록 추가> : \"!추가 산적 0300\"\n<보스 목록 삭제> : \"!삭제 산적\"\n";
+    str = str + "<보스 목록 추가> : \"!추가 산적 0300\"\n<보스 목록 삭제> : \"!삭제 산적\"\n<적컷 입력> : \"!1924 기감 적\"\n";
     str = str + "1시간 이전 내용은 누락 표시.  문의 : 보금자리\n( version : " + version + " )";
     return str;
 }
@@ -201,13 +199,8 @@ function init() {
     targetList.push(new Target("커츠", 5));
     targetList.push(new Target("피닉", 7));
 
-    if (isTest == true) {
-        test.login(process.env.TEST_DISCORD_TOKEN);
-        channelId = process.env.TEST_DISCORD_CHANNEL;
-    } else {
-        test.login(process.env.DISCORD_TOKEN); // 보탐봇
-        channelId = process.env.DISCORD_CHANNEL; // 연합, 보스시간
-    }
+    test.login(process.env.DISCORD_TOKEN); // 보탐봇
+    channelId = process.env.DISCORD_CHANNEL; // 연합, 보스시간
 }
 
 function genDate(date)
@@ -234,6 +227,7 @@ function Target(id, time) {
     this.cut = date;
     this.expect = false;
     this.mCount = 0;
+    this.discovered = false;
 
     var tempTime = time + "";
     if (tempTime.indexOf(":") == -1) {
@@ -266,6 +260,7 @@ function setCut(id, time, expect) {
             targetList[i].gen = calcTime(date, targetList[i].time);
             targetList[i].expect = expect;
             targetList[i].mCount = 0;
+            targetList[i].discovered = isDiscovered;
             return true;
         }
     }
@@ -336,6 +331,7 @@ function getTargets()
         (checked ? "" : getUncheckedTime(targetList[i].id, targetList[i].gen, now, targetList[i].time)) +
         ((checked == true && targetList[i].expect == true) ? " 예상" : "") +
         ((!targetList[i].mCount) ? "" : (" " + targetList[i].mCount + "멍")) +
+        (targetList[i].discovered == true ? " 적" : "") +
         "\n";
     }
     //var now = genDate();
@@ -438,6 +434,7 @@ function doSkip(str)
             var newDate = new Date(targetList[i].cut);
             targetList[i].gen = calcTime(newDate, targetList[i].time);
             targetList[i].expect = false;
+            targetList[i].discovered = isDiscovered;
             targetList[i].mCount++;
             return true;
         }
@@ -562,6 +559,7 @@ function doProcessInput(str)
 
 function refineStr(str)
 {
+    isDiscovered = false;
     str = str.replace(command, "");
     str = str.replace("컷", "");
     str = str.replace("리셋", "");
@@ -572,5 +570,12 @@ function refineStr(str)
     var splitted = str.split(" ");
     splitted = splitted.filter((val) => val.trim() != "");
     splitted.sort();
+    for (var i = 0; i < splitted.length; i++) {
+        if (splitted[i] == "적" || splitted[i] == "적컷") {
+            isDiscovered = true;
+            splitted.splice(i, 1);
+            break;
+        }
+    }
     return splitted;
 }
