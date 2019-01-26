@@ -14,8 +14,8 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var version = "v20190122-1";
-var comment = "적컷 추가";
+var version = "v20190126-1";
+var comment = "알림 메시지 변경";
 var isDiscovered = false;
 
 init();
@@ -144,14 +144,15 @@ function save()
 function alarmFunc()
 {
     var now = genDate();
-    var message = "알림 : ";
+    var message = "";
     var duration = 60 * 60 * 1000
     for (var i = 0; i < targetList.length; i++) {
         var diff = targetList[i].gen - now;
         if ( 0 < diff && diff < duration ) {
-            message = message + "[" + targetList[i].id + " " + getTime(targetList[i].gen) + "]";
+            message = message + targetList[i].id + getMinute(targetList[i].gen) + " ";
         }
     }
+    message = message.trim();
     if (message.length > 0) {
         sendMessage(message);
     }
@@ -287,6 +288,12 @@ function getTime(time) {
     if (hours < 10) hours = '0' + hours;
     if (minutes < 10) minutes = '0' + minutes;
     return hours + ":" + minutes;
+}
+
+function getMinute(time) {
+    var minutes = time.getMinutes();
+    if (minutes < 10) minutes = '0' + minutes;
+    return minutes;
 }
 
 function reset(time) {
