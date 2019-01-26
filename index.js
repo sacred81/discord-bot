@@ -144,11 +144,12 @@ function save()
 function alarmFunc()
 {
     var now = genDate();
-    var message = "";
+    var message = "알림 : ";
+    var duration = 60 * 60 * 1000
     for (var i = 0; i < targetList.length; i++) {
         var diff = targetList[i].gen - now;
-        if ( 0 < diff && diff < 900000 ) {
-            message = message + "\n" + targetList[i].id + " " + getTime(targetList[i].gen) + " 예정";
+        if ( 0 < diff && diff < duration ) {
+            message = message + "[" + targetList[i].id + " " + getTime(targetList[i].gen) + "]";
         }
     }
     if (message.length > 0) {
