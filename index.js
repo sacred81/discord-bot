@@ -14,7 +14,7 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var version = "v20190126-1";
+var version = "v20190126-2";
 var comment = "알림 메시지 변경";
 var isDiscovered = false;
 
@@ -149,7 +149,7 @@ function alarmFunc()
     for (var i = 0; i < targetList.length; i++) {
         var diff = targetList[i].gen - now;
         if ( 0 < diff && diff < duration ) {
-            message = message + targetList[i].id + getMinute(targetList[i].gen) + " ";
+            message = message + getMinute(targetList[i].gen) + targetList[i].id + " ";
         }
     }
     message = message.trim();
