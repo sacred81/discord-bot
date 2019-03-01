@@ -14,8 +14,8 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var version = "v20190126-2";
-var comment = "알림 메시지 변경";
+var version = "v20190301-1";
+var comment = "알림 메시지 정렬 버그 수정";
 var isDiscovered = false;
 
 init();
@@ -84,6 +84,7 @@ test.on("message", (message) => {
         message.reply(getUsage(message.content));
     } else {
         save();
+        alarmFunc();
     }
 });
 
