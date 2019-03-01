@@ -143,6 +143,7 @@ function save()
 
 function alarmFunc()
 {
+    sortTargets();
     var now = genDate();
     var message = "";
     var duration = 60 * 60 * 1000
@@ -307,6 +308,7 @@ function reset(time) {
         targetList[i].gen = gen;
         targetList[i].expect = false;
         targetList[i].mCount = 0;
+        targetList[i].discovered = false;
     }
     return true;
 }
@@ -442,7 +444,6 @@ function doSkip(str)
             var newDate = new Date(targetList[i].cut);
             targetList[i].gen = calcTime(newDate, targetList[i].time);
             targetList[i].expect = false;
-            targetList[i].discovered = isDiscovered;
             targetList[i].mCount++;
             return true;
         }
