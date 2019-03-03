@@ -14,8 +14,8 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var version = "v20190301-1";
-var comment = "알림 메시지 정렬 버그 수정";
+var version = "v20190303-1";
+var comment = "목록 표시 알람 제거";
 var isDiscovered = false;
 
 init();
@@ -78,13 +78,13 @@ test.on("message", (message) => {
         if (doCut(message.content) == true) {
             message.reply(message.content + " 확인");
             processed = true;
+            alarmFunc();
         }
     }
     if (!processed) {
         message.reply(getUsage(message.content));
     } else {
         save();
-        alarmFunc();
     }
 });
 
