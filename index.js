@@ -14,8 +14,8 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var version = "v20190303-1";
-var comment = "목록 표시 알람 제거";
+var version = "v20190507-1";
+var comment = "현재 시간 기준 컷 기록 추가";
 var isDiscovered = false;
 
 init();
@@ -30,7 +30,21 @@ test.on('ready', () => {
     load();
 });
 
+function hasId(id) {
+    for (var i = 0; i < targetList.length; i++) {
+        if (id == targetList[i].id)
+            return true;
+    }
+    return false;
+}
+
 test.on("message", (message) => {
+    if (message.content.indexOf("컷") != -1) {
+        id = message.content.replace(/컷|!| /g, '');
+        if (hasId(id)) {
+            message.content = '!' + getTime(genDate()) + id;
+        }
+    }
     if (message.content[0] != command) {
         return;
     }
@@ -174,7 +188,8 @@ function getUsage(text)
     str = str + "\n";
     str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n<멍처리> : \"!기감멍\"\n";
     str = str + "<보스 목록 추가> : \"!추가 산적 0300\"\n<보스 목록 삭제> : \"!삭제 산적\"\n<적컷 입력> : \"!1924 기감 적\"\n";
-    str = str + "1시간 이전 내용은 누락 표시.  문의 : 보금자리\n( version : " + version + " )";
+    str = str + "<현재 시간 기준 컷 입력> : \"산적컷\"\n";
+    str = str + "1시간 이전 내용은 누락 표시.\n( version : " + version + " )";
     return str;
 }
 
