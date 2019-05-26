@@ -14,8 +14,8 @@ var doc = new GoogleSpreadsheet(sheetId);
 var command = "!";
 
 // Configuration
-var version = "v20190507-1";
-var comment = "현재 시간 기준 컷 기록 추가";
+var version = "v20190526-1";
+var comment = "현재 시간 기준 컷/멍 기록 추가";
 var isDiscovered = false;
 
 init();
@@ -43,6 +43,12 @@ test.on("message", (message) => {
         id = message.content.replace(/컷|!| /g, '');
         if (hasId(id)) {
             message.content = '!' + getTime(genDate()) + ' ' + id;
+        }
+    }
+    if (message.content.indexOf("멍") != -1) {
+        id = message.content.replace(/멍|!| /g, '');
+        if (hasId(id)) {
+            message.content = '!' + id + ' 멍';
         }
     }
     if (message.content[0] != command) {
@@ -188,7 +194,7 @@ function getUsage(text)
     str = str + "\n";
     str = str + "<목록> : \"!\"\n<리셋시간 입력> : \"!리셋 0524\"\n<컷시간 입력> : \"!1924 기감\"\n<예상 컷시간 입력> : \"!1924 기감 예상\"\n<멍처리> : \"!기감멍\"\n";
     str = str + "<보스 목록 추가> : \"!추가 산적 0300\"\n<보스 목록 삭제> : \"!삭제 산적\"\n<적컷 입력> : \"!1924 기감 적\"\n";
-    str = str + "<현재 시간 기준 컷 입력> : \"산적컷\"\n";
+    str = str + "<현재 시간 기준 컷/멍 입력> : \"이프컷\" or \"이프멍\"\n";
     str = str + "1시간 이전 내용은 누락 표시.\n( version : " + version + " )";
     return str;
 }
