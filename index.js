@@ -42,7 +42,7 @@ test.on("message", (message) => {
     if (message.content.indexOf("컷") != -1) {
         id = message.content.replace(/컷|!| /g, '');
         if (hasId(id)) {
-            message.content = '!' + getTime(genDate()) + id;
+            message.content = '!' + getTime(genDate()) + ' ' + id;
         }
     }
     if (message.content[0] != command) {
